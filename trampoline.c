@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <CL/opencl.h>
+#include <opencl.h>
 
 #include "slurp.h"
 

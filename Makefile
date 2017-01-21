@@ -6,4 +6,4 @@ fractal-gen: fractal-gen.o trampoline.o slurp.o
 
 .PHONY: clean
 clean:
-	rm -f {trampoline,slurp,fractal-gen}.o
+	rm -f {trampoline,slurp,fractal-gen}.o fractal-gen
