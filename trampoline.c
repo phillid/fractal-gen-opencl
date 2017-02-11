@@ -8,8 +8,9 @@ static cl_platform_id platform;
 static cl_context context;
 static cl_device_id* devices;
 static cl_uint device_count;
-unsigned int device_in_use;
+static unsigned int device_in_use;
 static cl_command_queue command_queue;
+static cl_mem device_buffer;
 
 static cl_kernel kernel;
 static cl_program program;
@@ -136,7 +137,53 @@ int tramp_compile_kernel()
 	cl_int ret = 0;
 
 	ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+	if (ret != CL_SUCCESS)
+		return 1;
+
+	kernel = clCreateKernel(program, "fractal_gen", &ret);
 
 	/* return non-zero on error */
 	return ret != CL_SUCCESS;
+}
+
+int tramp_set_kernel_args()
+{
+	cl_int ret = 0;
+
+	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(unsigned int)*1024*1024, NULL, &ret);
+	if (ret != CL_SUCCESS)
+		return 1;
+
+	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*)&device_buffer);
+
+	return ret != CL_SUCCESS;
+}
+
+int tramp_run_kernel()
+{
+	cl_event event;
+	cl_int ret = 0;
+	size_t workgroup_sizes[2];
+	workgroup_sizes[0] = 1024;
+	workgroup_sizes[1] = 1024;
+
+	ret = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, workgroup_sizes, NULL, 0, NULL, &event);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "%d",ret);
+		return ret;
+	}
+
+	clReleaseEvent(event);
+	clFinish(command_queue);
+
+	return ret;
+}
+
+int tramp_copy_data(void **buffer)
+{
+	cl_event event;
+	cl_int ret = 0;
+
+	ret = clEnqueueReadBuffer(command_queue, device_buffer, CL_TRUE, 0, sizeof(unsigned int)*1024*1024, *buffer, 0, NULL, &event);
+	clReleaseEvent(event);
 }
