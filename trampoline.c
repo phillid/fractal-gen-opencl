@@ -23,17 +23,17 @@ static unsigned int iterations;
 /* FIXME print cl error messages with oclErrorString */
 int tramp_init()
 {
-	cl_int res;
+	cl_int ret;
 
 	/* FIXME expose platform selection to user and flarg the blopple */
-//	res = oclGetPlatformID(&platform);
-//	if (res != CL_SUCCESS)
+//	ret = oclGetPlatformID(&platform);
+//	if (ret != CL_SUCCESS)
 //		return 1;
 	platform=0;
 
 	/* FIXME expose device type to user */
-	res = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &device_count);
-	if (res != CL_SUCCESS)
+	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &device_count);
+	if (ret != CL_SUCCESS)
 		return 1;
 
 	devices = malloc(device_count * sizeof(cl_device_id));
@@ -43,18 +43,18 @@ int tramp_init()
 	}
 
 	/* FIXME expose device type to user */
-	res = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, device_count, devices, NULL);
-	if (res != CL_SUCCESS)
+	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, device_count, devices, NULL);
+	if (ret != CL_SUCCESS)
 		return 1;
 
-	context = clCreateContext(0, 1, devices, NULL, NULL, &res);
-	if (res != CL_SUCCESS)
+	context = clCreateContext(0, 1, devices, NULL, NULL, &ret);
+	if (ret != CL_SUCCESS)
 		return 1;
 
 	/* FIXME expose to user */
 	device_in_use = 0;
-	command_queue = clCreateCommandQueue(context, devices[device_in_use], 0, &res);
-	if (res != CL_SUCCESS)
+	command_queue = clCreateCommandQueue(context, devices[device_in_use], 0, &ret);
+	if (ret != CL_SUCCESS)
 		return 1;
 
 	return 0;
@@ -75,7 +75,7 @@ void tramp_destroy()
 
 int tramp_load_kernel(const char *filename)
 {
-	cl_int res = 0;
+	cl_int ret = 0;
 	size_t length = 0;
 	FILE *fin = fopen(filename, "r");
 	char *source = NULL;
@@ -89,12 +89,10 @@ int tramp_load_kernel(const char *filename)
 
 	fclose(fin);
 
-	//fwrite(source, length, 1, stderr);
+	program = clCreateProgramWithSource(context, 1, (const char **)&source, &length, &ret);
 
-	program = clCreateProgramWithSource(context, 1, (const char **)&source, &length, &res);
-
-	if (res != CL_SUCCESS) {
-		fprintf(stderr, "Failed to create program from source code: %s ", get_cl_error_string(res));
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create program from source code: %s ", get_cl_error_string(ret));
 		return 1;
 	}
 
