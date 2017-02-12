@@ -11,8 +11,7 @@ __kernel void fractal_gen(
 	float b = -1.75+(((float)y)/(float)size)*3.5;
 
 	float2 z = (0.0, 0.0);
-	
-	
+
 	for (i = 0; i < iterations; i++) {
 		// if abs(z) > 2
 		if (z.x*z.x + z.y*z.y > 4)
@@ -22,5 +21,5 @@ __kernel void fractal_gen(
 		z.x = z.x*z.x - z.y*z.y + a;
 		z.y = 2*oldx*z.y + b;
 	}
-	buffer[x+size*y] = (i*255)/iterations;
+	buffer[(size*y)+x] = (i*255)/iterations;
 }

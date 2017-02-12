@@ -15,6 +15,10 @@ static cl_mem device_buffer;
 static cl_kernel kernel;
 static cl_program program;
 
+static unsigned int size;
+static unsigned int iterations;
+
+
 /* FIXME print cl error messages with oclErrorString */
 int tramp_init()
 {
@@ -146,11 +150,15 @@ int tramp_compile_kernel()
 	return ret != CL_SUCCESS;
 }
 
-int tramp_set_kernel_args(unsigned int size, unsigned int iterations)
+int tramp_set_kernel_args(unsigned int s, unsigned int it)
 {
 	cl_int ret = 0;
 
-	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, 8192*8192, NULL, &ret);
+	size = s;
+	iterations = it;
+	
+
+	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size*size, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		return 1;
 
@@ -170,8 +178,8 @@ int tramp_run_kernel()
 	cl_event event;
 	cl_int ret = 0;
 	size_t workgroup_sizes[2];
-	workgroup_sizes[0] = 8192;
-	workgroup_sizes[1] = 8192;
+	workgroup_sizes[0] = size;
+	workgroup_sizes[1] = size;
 
 	ret = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, workgroup_sizes, NULL, 0, NULL, &event);
 	if (ret != CL_SUCCESS) {
