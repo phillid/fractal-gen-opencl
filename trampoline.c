@@ -114,23 +114,32 @@ char *tramp_get_build_log()
 	                            sizeof(cl_build_status),
 	                            &build_status, NULL);
 
-	/* FIXME check */
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get program build status: %s ", get_cl_error_string(ret));
+		return NULL;
+	}
 
 	ret = clGetProgramBuildInfo(program, devices[device_in_use],
 	                            CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
-	/* FIXME check */
-	
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get program build log size: %s ", get_cl_error_string(ret));
+		return NULL;
+	}
+
 	/* + 1 for null-terminator */
 	build_log = malloc(log_size + 1);
 	if (!build_log) {
 		perror("malloc");
 		return NULL;
 	}
-	
 	ret = clGetProgramBuildInfo(program, devices[device_in_use],
 	                            CL_PROGRAM_BUILD_LOG,
 	                            log_size, build_log, NULL);
-	
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get program build log: %s ", get_cl_error_string(ret));
+		return NULL;
+	}
+
 	/* null-terminate log */
 	build_log[log_size] = '\0';
 
@@ -142,13 +151,19 @@ int tramp_compile_kernel()
 	cl_int ret = 0;
 
 	ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to build program: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	kernel = clCreateKernel(program, "fractal_gen", &ret);
 
-	/* return non-zero on error */
-	return ret != CL_SUCCESS;
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create kernel: %s ", get_cl_error_string(ret));
+		return 1;
+	}
+
+	return 0;
 }
 
 int tramp_set_kernel_args(unsigned int s, unsigned int it)
@@ -159,8 +174,10 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
 	iterations = it;
 
 	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size*size, NULL, &ret);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create buffer for slave device: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), &device_buffer);
 	if (ret != CL_SUCCESS) {
@@ -209,5 +226,11 @@ int tramp_copy_data(void **buffer, size_t size)
 	cl_int ret = 0;
 
 	ret = clEnqueueReadBuffer(command_queue, device_buffer, CL_TRUE, 0, size, *buffer, 0, NULL, &event);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to enqueue read command for data: %s ", get_cl_error_string(ret));
+		return 1;
+	}
 	clReleaseEvent(event);
+
+	return 0;
 }
