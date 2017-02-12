@@ -2,6 +2,7 @@
 #include <string.h>
 #include <opencl.h>
 
+#include "cl_error.h"
 #include "slurp.h"
 
 static cl_platform_id platform;
@@ -92,8 +93,10 @@ int tramp_load_kernel(const char *filename)
 
 	program = clCreateProgramWithSource(context, 1, (const char **)&source, &length, &res);
 
-	if (res != CL_SUCCESS)
+	if (res != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create program from source code: %s ", get_cl_error_string(res));
 		return 1;
+	}
 
 	free(source);
 	source = NULL;
@@ -156,21 +159,30 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
 
 	size = s;
 	iterations = it;
-	
 
 	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size*size, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		return 1;
 
 	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), &device_buffer);
-	fprintf(stderr, "first: %d\n", ret);
-	ret = clSetKernelArg(kernel, 1, sizeof(unsigned int), &size);
-	fprintf(stderr, "first: %d\n", ret);
-	ret = clSetKernelArg(kernel, 2, sizeof(unsigned int), &iterations);
-	fprintf(stderr, "first: %d\n", ret);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Error on buffer argument: %s ", get_cl_error_string(ret));
+		return 1;
+	}
 
-	/* FIXME check all clSetKernelArg */
-	return ret != CL_SUCCESS;
+	ret = clSetKernelArg(kernel, 1, sizeof(unsigned int), &size);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Error on size argument: %s ", get_cl_error_string(ret));
+		return 1;
+	}
+
+	ret = clSetKernelArg(kernel, 2, sizeof(unsigned int), &iterations);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Error on iteration argument: %s ", get_cl_error_string(ret));
+		return 1;
+	}
+
+	return 0;
 }
 
 int tramp_run_kernel()
