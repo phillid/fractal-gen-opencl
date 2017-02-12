@@ -3,7 +3,14 @@
 
 #include "trampoline.h"
 
-int main() {
+static unsigned long size;
+static unsigned long iterations;
+
+int main()
+{
+	size = 1024;
+	iterations = 102400;
+
 	fprintf(stderr, "Building CL trampoline... ");
 	if (tramp_init()) {
 		fprintf(stderr, "Failed.\n");
@@ -26,7 +33,7 @@ int main() {
 	fprintf(stderr, "Compiled.\n");
 
 	fprintf(stderr, "Setting kernel arguments... ");
-	if (tramp_set_kernel_args()) {
+	if (tramp_set_kernel_args(size, iterations)) {
 		fprintf(stderr, "Failed.\n");
 		return 1;
 	}
@@ -39,14 +46,13 @@ int main() {
 	}
 	fprintf(stderr, "Done.\n");
 
-
-	unsigned int *buffer = calloc(sizeof(unsigned int), 1024*1024);
+	char *buffer = malloc(size*size);
 	if (!buffer) {
-		perror("malloc");
+		perror("host data buffer malloc");
 		return 1;
 	}
 	fprintf(stderr, "Reading data from device... ");
-	if (tramp_copy_data(&buffer)) {
+	if (tramp_copy_data(&buffer, size*size)) {
 		fprintf(stderr, "Failed.\n");
 		return 1;
 	}
@@ -56,10 +62,8 @@ int main() {
 	tramp_destroy();
 	fprintf(stderr, "Blown to smitherines.\n");
 
-	printf("P5\n1024\n1024\n255\n");
-	unsigned int i;
-	for (i = 0; i < 1024*1024; i++)
-		fputc(buffer[i], stdout);
+	printf("P5\n%d\n%d\n255\n",size,size);
+	fwrite(buffer, size*size, 1, stdout);
 
 	return 0;
 }

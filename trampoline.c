@@ -146,16 +146,22 @@ int tramp_compile_kernel()
 	return ret != CL_SUCCESS;
 }
 
-int tramp_set_kernel_args()
+int tramp_set_kernel_args(unsigned int size, unsigned int iterations)
 {
 	cl_int ret = 0;
 
-	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(unsigned int)*1024*1024, NULL, &ret);
+	device_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, 8192*8192, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		return 1;
 
-	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*)&device_buffer);
+	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), &device_buffer);
+	fprintf(stderr, "first: %d\n", ret);
+	ret = clSetKernelArg(kernel, 1, sizeof(unsigned int), &size);
+	fprintf(stderr, "first: %d\n", ret);
+	ret = clSetKernelArg(kernel, 2, sizeof(unsigned int), &iterations);
+	fprintf(stderr, "first: %d\n", ret);
 
+	/* FIXME check all clSetKernelArg */
 	return ret != CL_SUCCESS;
 }
 
@@ -164,8 +170,8 @@ int tramp_run_kernel()
 	cl_event event;
 	cl_int ret = 0;
 	size_t workgroup_sizes[2];
-	workgroup_sizes[0] = 1024;
-	workgroup_sizes[1] = 1024;
+	workgroup_sizes[0] = 8192;
+	workgroup_sizes[1] = 8192;
 
 	ret = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, workgroup_sizes, NULL, 0, NULL, &event);
 	if (ret != CL_SUCCESS) {
@@ -179,11 +185,11 @@ int tramp_run_kernel()
 	return ret;
 }
 
-int tramp_copy_data(void **buffer)
+int tramp_copy_data(void **buffer, size_t size)
 {
 	cl_event event;
 	cl_int ret = 0;
 
-	ret = clEnqueueReadBuffer(command_queue, device_buffer, CL_TRUE, 0, sizeof(unsigned int)*1024*1024, *buffer, 0, NULL, &event);
+	ret = clEnqueueReadBuffer(command_queue, device_buffer, CL_TRUE, 0, size, *buffer, 0, NULL, &event);
 	clReleaseEvent(event);
 }
