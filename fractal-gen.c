@@ -69,8 +69,8 @@ void die_help()
 
 int main(int argc, char **argv)
 {
-	unsigned int size = 0;
-	unsigned int iterations = 0;
+	long size = 0;
+	long iterations = 0;
 	char c = '\0';
 
 	while ((c = getopt(argc, argv, "s:i:")) != -1) {
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (size == 0 || iterations == 0) {
+	if (size <= 0 || iterations <= 0) {
 		die_help();
 		return 1; /* mostly unreachable */
 	}
