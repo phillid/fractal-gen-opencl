@@ -63,7 +63,7 @@ int run(unsigned int size, unsigned int iterations)
 
 void die_help()
 {
-	fprintf(stderr, "Syntax:\n%s [-s size] [-i max_iteratons]\n");
+	fprintf(stderr, "Syntax:\nfractal-gen [-s size] [-i max_iteratons]\n");
 	exit(1);
 }
 
