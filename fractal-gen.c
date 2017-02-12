@@ -14,7 +14,7 @@ int run(unsigned int size, unsigned int iterations)
 	fprintf(stderr, "Done.\n");
 
 	fprintf(stderr, "Loading kernel source from file... ");
-	if (tramp_load_kernel("test.cl")) {
+	if (tramp_load_kernel("mandelbrot.cl")) {
 		fprintf(stderr, "Failed.\n");
 		return 1;
 	}
