@@ -20,3 +20,9 @@ image is a negative of that which comes straight from the software.
 Such a small, low-detail image will not provide a case for using GPU rather
 than CPU, but once you start upping the image size and detail, a modern GPU
 will provide endless benefit over a modern CPU.
+
+For example, using the CPU-based fractal-gen, a 10240x10240 pixel image at
+1000 iteration cutout per pixel, the image will complete in just under 4
+minutes when running on all 32 threads of a dual-Xeon E5-2670 setup. Compare
+this to the runtime of this software on a (much cheaper) NVIDIA GTX 1070; about
+0.5 to 1 second. The gap only widens with more detail.
