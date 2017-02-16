@@ -10,3 +10,13 @@ of its portability and open nature.
 
 Software is still in early days and needs more CL kernels for such fractals as
 tricorn, burning ship, and julia sets to name a few.
+
+Below is a simple demo image produced with the software. It is a simple
+mandelbrot fractal using only 75 iterations, at 768 square pixels. The
+image is a negative of that which comes straight from the software.
+
+![Demo mandelbrot image](./demo.png)
+
+Such a small, low-detail image will not provide a case for using GPU rather
+than CPU, but once you start upping the image size and detail, a modern GPU
+will provide endless benefit over a modern CPU.
