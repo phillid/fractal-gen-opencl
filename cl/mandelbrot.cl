@@ -7,8 +7,8 @@ __kernel void fractal_gen(
 	unsigned int y = get_global_id(1);
 	unsigned int i = 0;
 
-	float a = -2.5+(((float)x)/(float)size)*3.5;
-	float b = -1.75+(((float)y)/(float)size)*3.5;
+	float a = -2.5+(((float)x)/size)*3.5;
+	float b = -1.75+(((float)y)/size)*3.5;
 
 	float2 z = (0.0, 0.0);
 
