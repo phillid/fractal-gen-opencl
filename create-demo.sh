@@ -13,7 +13,7 @@ trap clean exit
 
 echo "::: Invoking fractal-gen through pnminvert for negative PGM image"
 
-./fractal-gen -s 768 -i 75 | pnminvert > "$temp_name"
+./fractal-gen -p any -s 768 -i 75 | pnminvert > "$temp_name"
 
 echo "::: Invoking ImageMagick to convert to PNG"
 
