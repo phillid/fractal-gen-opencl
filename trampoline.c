@@ -20,16 +20,113 @@ static unsigned int size;
 static unsigned int iterations;
 
 
+char *get_platform_info(cl_platform_id id, cl_platform_info value_name)
+{
+	cl_int ret = 0;
+	char *value = NULL;
+	size_t value_len = 0;
+
+	ret = clGetPlatformInfo(id, value_name, 0, NULL, &value_len);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get platform info for platform %d: %s\n", id, get_cl_error_string(ret));
+		return NULL;
+	}
+
+	value = malloc(value_len);
+	if (value == NULL) {
+		perror("value buffer malloc");
+		return NULL;
+	}
+
+	ret = clGetPlatformInfo(id, value_name, value_len, value, &value_len);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get platform info for platform %d: %s\n", id, get_cl_error_string(ret));
+		return NULL;
+	}
+
+	return value;
+}
+
+int select_platform(const char *preferred_platform)
+{
+	cl_uint i = 0;
+	cl_platform_id *platforms = NULL;
+	cl_uint platform_count = 0;
+	cl_int ret = 0;
+	int preferred_platform_found = 0;
+	char *p_name = NULL;
+	char *p_vendor = NULL;
+	char *p_version = NULL;
+
+	ret = clGetPlatformIDs(0, NULL, &platform_count);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get CL platform count: %s ", get_cl_error_string(ret));
+		return 1;
+	}
+
+	if (platform_count == 0) {
+		fprintf(stderr, "No OpenCL platforms available ");
+		return 1;
+	}
+
+	platforms = calloc(platform_count, sizeof(cl_platform_id));
+	if (platforms == NULL) {
+		perror("platform ID array calloc");
+		return 1;
+	}
+
+	ret = clGetPlatformIDs(platform_count, platforms, NULL);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get CL platform IDs: %s ", get_cl_error_string(ret));
+		return 1;
+	}
+
+	fprintf(stderr, "\nAvailable platforms:\n");
+	for (i = 0; i < platform_count; i++) {
+		p_name = get_platform_info(platforms[i], CL_PLATFORM_NAME);
+		p_vendor = get_platform_info(platforms[i], CL_PLATFORM_VENDOR);
+		p_version = get_platform_info(platforms[i], CL_PLATFORM_VERSION);
+		if (   p_name == NULL
+		    || p_version == NULL
+		    || p_vendor == NULL) {
+			free(p_name);
+			free(p_vendor);
+			free(p_version);
+			free(platforms);
+			return 1;
+		}
+		/* Is this platform the first preferred one? Select it for the lovely lady or gentleman */
+		if (strcmp(preferred_platform, p_name) == 0 && !preferred_platform_found) {
+			platform = platforms[i];
+			preferred_platform_found = 1;
+		}
+		fprintf(stderr, "\t* Platform \"%s\" - From %s (%s)%s\n",
+		        p_name, p_vendor, p_version, platform == platforms[i] ? " [SELECTED]" : "" );
+
+		free(p_name);
+		free(p_vendor);
+		free(p_version);
+	}
+
+	if (!preferred_platform_found) {
+		fprintf(stderr, "Warning: Preferred platform not found, falling back on first available platform.\n");
+		platform = platforms[0];
+	}
+
+
+
+	return 0;
+}
+
+
 /* FIXME print cl error messages with oclErrorString */
-int tramp_init()
+int tramp_init(const char *preferred_platform)
 {
 	cl_int ret;
 
-	/* FIXME expose platform selection to user and flarg the blopple */
-//	ret = oclGetPlatformID(&platform);
-//	if (ret != CL_SUCCESS)
-//		return 1;
-	platform=0;
+	if (select_platform(preferred_platform)) {
+		return 1;
+	}
 
 	/* FIXME expose device type to user */
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &device_count);

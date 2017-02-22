@@ -1,4 +1,4 @@
-int tramp_init(void);
+int tramp_init(const char *preferred_platform);
 void tramp_destroy(void);
 int tramp_load_kernel(const char *filename);
 char *tramp_get_build_log(void);

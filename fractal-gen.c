@@ -4,10 +4,10 @@
 
 #include "trampoline.h"
 
-int run(unsigned int size, unsigned int iterations)
+int run(const char *preferred_platform, unsigned int size, unsigned int iterations)
 {
 	fprintf(stderr, "Building CL trampoline... ");
-	if (tramp_init()) {
+	if (tramp_init(preferred_platform)) {
 		fprintf(stderr, "Failed.\n");
 		return 1;
 	}
@@ -63,7 +63,7 @@ int run(unsigned int size, unsigned int iterations)
 
 void die_help()
 {
-	fprintf(stderr, "Syntax:\nfractal-gen [-s size] [-i max_iteratons]\n");
+	fprintf(stderr, "Syntax:\nfractal-gen [-p platform] [-s size] [-i max_iteratons]\n");
 	exit(1);
 }
 
@@ -71,15 +71,19 @@ int main(int argc, char **argv)
 {
 	long size = 0;
 	long iterations = 0;
+	char *preferred_platform = NULL;
 	char c = '\0';
 
-	while ((c = getopt(argc, argv, "s:i:")) != -1) {
+	while ((c = getopt(argc, argv, "s:i:p:")) != -1) {
 		switch (c) {
 		case 's':
 			size = atoi(optarg);
 			break;
 		case 'i':
 			iterations = atoi(optarg);
+			break;
+		case 'p':
+			preferred_platform = optarg;
 			break;
 		case '?':
 			die_help();
@@ -88,11 +92,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (size <= 0 || iterations <= 0) {
+	if (size <= 0 || iterations <= 0 || preferred_platform == NULL) {
 		die_help();
 		return 1; /* mostly unreachable */
 	}
 
-	run(size, iterations);
+	run(preferred_platform, size, iterations);
 	return 0;
 }
