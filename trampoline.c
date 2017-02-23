@@ -113,7 +113,7 @@ int select_platform(const char *preferred_platform)
 		platform = platforms[0];
 	}
 
-
+	free(platforms);
 
 	return 0;
 }

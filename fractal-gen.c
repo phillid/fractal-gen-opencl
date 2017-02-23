@@ -59,6 +59,8 @@ int run(const char *preferred_platform, unsigned int size, unsigned long iterati
 
 	printf("P5\n%d\n%d\n255\n",size,size);
 	fwrite(buffer, size*size, 1, stdout);
+
+	free(buffer);
 }
 
 void die_help()
