@@ -288,7 +288,7 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
 		return 1;
 	}
 
-	ret = clSetKernelArg(kernel, 2, sizeof(unsigned int), &iterations);
+	ret = clSetKernelArg(kernel, 2, sizeof(unsigned long), &iterations);
 	if (ret != CL_SUCCESS) {
 		fprintf(stderr, "Error on iteration argument: %s ", get_cl_error_string(ret));
 		return 1;

@@ -4,7 +4,7 @@
 
 #include "trampoline.h"
 
-int run(const char *preferred_platform, unsigned int size, unsigned int iterations)
+int run(const char *preferred_platform, unsigned int size, unsigned long iterations)
 {
 	fprintf(stderr, "Building CL trampoline... ");
 	if (tramp_init(preferred_platform)) {

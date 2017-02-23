@@ -1,11 +1,11 @@
 __kernel void fractal_gen(
 	__global unsigned char *buffer,
 	const unsigned int size,
-	const unsigned int iterations)
+	const unsigned long iterations)
 {
 	unsigned int x = get_global_id(0);
 	unsigned int y = get_global_id(1);
-	unsigned int i = 0;
+	unsigned long i = 0;
 
 	float a = -2.5+(((float)x)/size)*3.5;
 	float b = -1.75+(((float)y)/size)*3.5;
