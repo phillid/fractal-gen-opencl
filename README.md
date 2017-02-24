@@ -1,9 +1,23 @@
 # fractal-gen-opencl
 
+	Syntax
+	fractal-gen -p <platform> -s <size> -i <iterations>
+	
+	-p platform   - name of the preferred OpenCL platform to use. If no platform
+	                with this name is available, the first available platform
+	                is selected and the user is warned. If you do not know the
+	                name of the platform, set to a nonsense string like 'any'.
+	-s size       - size of the image to generate in pixels (square image)
+	-i iterations - maximum number of iterations to use on each pixel to
+	                determine its set membership
+	
+
 This is a work-in-progress port of my simple fractal-gen software to OpenCL.
 That software was an experiment of mine to generate mandelbrot (and some of
 its cousin) fractals on the CPU. This is my attempt at porting that software to
 OpenCL so it can be used on a multitude of computation devices, chiefly GPUs.
+
+## About
 
 I had started to port it to CUDA in October 2016, but changed to CL because
 of its portability and open nature.
