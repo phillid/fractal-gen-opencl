@@ -118,8 +118,6 @@ int select_platform(const char *preferred_platform)
 	return 0;
 }
 
-
-/* FIXME print cl error messages with oclErrorString */
 int tramp_init(const char *preferred_platform)
 {
 	cl_int ret;
@@ -130,8 +128,10 @@ int tramp_init(const char *preferred_platform)
 
 	/* FIXME expose device type to user */
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &device_count);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get device count: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	devices = malloc(device_count * sizeof(cl_device_id));
 	if (!devices) {
@@ -141,18 +141,24 @@ int tramp_init(const char *preferred_platform)
 
 	/* FIXME expose device type to user */
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, device_count, devices, NULL);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to get device ID list: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	context = clCreateContext(0, 1, devices, NULL, NULL, &ret);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create CL context: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	/* FIXME expose to user */
 	device_in_use = 0;
 	command_queue = clCreateCommandQueue(context, devices[device_in_use], 0, &ret);
-	if (ret != CL_SUCCESS)
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to create command queue on context: %s ", get_cl_error_string(ret));
 		return 1;
+	}
 
 	return 0;
 }
