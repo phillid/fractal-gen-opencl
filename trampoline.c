@@ -120,7 +120,7 @@ int select_platform(const char *preferred_platform)
 
 int tramp_init(const char *preferred_platform)
 {
-	cl_int ret;
+	cl_int ret = 0;
 
 	if (select_platform(preferred_platform)) {
 		return 1;
@@ -169,7 +169,7 @@ void tramp_destroy()
 	clReleaseProgram(program);
 	clReleaseCommandQueue(command_queue);
 	clReleaseContext(context);
-	
+
 	if (devices) {
 		free(devices);
 		devices = NULL;
@@ -180,12 +180,15 @@ int tramp_load_kernel(const char *filename)
 {
 	cl_int ret = 0;
 	size_t length = 0;
-	FILE *fin = fopen(filename, "r");
+	FILE *fin = NULL;
 	char *source = NULL;
+
+	fin = fopen(filename, "r");
 	if (!fin) {
 		perror("fopen");
 		return 1;
 	}
+
 	source = slurp(fin, &length);
 	if (!source)
 		return 1;
@@ -193,7 +196,6 @@ int tramp_load_kernel(const char *filename)
 	fclose(fin);
 
 	program = clCreateProgramWithSource(context, 1, (const char **)&source, &length, &ret);
-
 	if (ret != CL_SUCCESS) {
 		fprintf(stderr, "Failed to create program from source code: %s ", get_cl_error_string(ret));
 		return 1;
