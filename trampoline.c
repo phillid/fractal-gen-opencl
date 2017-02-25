@@ -19,7 +19,14 @@ static cl_program program;
 static unsigned int size;
 static unsigned int iterations;
 
-
+/**
+ * Wrapper to help with fetching string-based information about an OpenCL
+ * platform.
+ *
+ * Returns non-null pointer to a string which will need to be passed to free()
+ * when finished with.
+ * On failure, returns NULL
+ */
 char *get_platform_info(cl_platform_id id, cl_platform_info value_name)
 {
 	cl_int ret = 0;
@@ -47,6 +54,14 @@ char *get_platform_info(cl_platform_id id, cl_platform_info value_name)
 	return value;
 }
 
+/**
+ * Set the trampoline's selected OpenCL platform to the first one with a name
+ * matching the one in `preferred_platform`. If no exact match is found,
+ * the first available platform is selected instead.
+ *
+ * Returns 0 when any platform was selected. Returns non-zero if no platform
+ * could be selected
+ */
 int select_platform(const char *preferred_platform)
 {
 	cl_uint i = 0;
@@ -118,6 +133,13 @@ int select_platform(const char *preferred_platform)
 	return 0;
 }
 
+
+/**
+ * Initialise the OpenCL trampoline, specifying the name of the OpenCL platform
+ * to use if it is available
+ *
+ * Returns 0 on success, non-zero on failure.
+ */
 int tramp_init(const char *preferred_platform)
 {
 	cl_int ret = 0;
@@ -163,6 +185,10 @@ int tramp_init(const char *preferred_platform)
 	return 0;
 }
 
+/**
+ * Destroy the trampoline, deallocating/freeing resources allocated in a
+ * previous call to tramp_init(char*)
+ */
 void tramp_destroy()
 {
 	clReleaseKernel(kernel);
@@ -176,6 +202,12 @@ void tramp_destroy()
 	}
 }
 
+/**
+ * Load OpenCL kernel source from the file `filename` and create an OpenCL
+ * program from it.
+ *
+ * Returns 0 on success, non-zero on failure.
+ */
 int tramp_load_kernel(const char *filename)
 {
 	cl_int ret = 0;
@@ -207,6 +239,13 @@ int tramp_load_kernel(const char *filename)
 	return 0;
 }
 
+/**
+ * Get a string showing the logged output (if any) of the build stage of OpenCL
+ * program compilation.
+ *
+ * On success, returns a char* which must be passed to free(1) when no longer
+ * needed. Else, returns NULL.
+ */
 char *tramp_get_build_log()
 {
 	cl_int ret = 0;
@@ -251,6 +290,11 @@ char *tramp_get_build_log()
 	return build_log;
 }
 
+/**
+ * Compile the loaded program/kernel to make it ready for execution.
+ *
+ * Returns 0 on success, non-zero otherwise.
+ */
 int tramp_compile_kernel()
 {
 	cl_int ret = 0;
@@ -271,6 +315,13 @@ int tramp_compile_kernel()
 	return 0;
 }
 
+/**
+ * Set the arguments to be passed to the OpenCL kernel when run on the device.
+ *
+ * Returns 0 on success, non-zero otherwise.
+ *
+ * FIXME investigate using something more flexible?
+ */
 int tramp_set_kernel_args(unsigned int s, unsigned int it)
 {
 	cl_int ret = 0;
@@ -305,6 +356,15 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
 	return 0;
 }
 
+/**
+ * Run the OpenCL kernel on the device with the specified arguments and wait
+ * for it to complete execution
+ *
+ * Returns CL_SUCCESS on success, otherwise an appropriate error value from
+ * the CL library is returned.
+ *
+ * FIXME the return values go against the grain of the rest of the file
+ */
 int tramp_run_kernel()
 {
 	cl_event event;
@@ -325,6 +385,13 @@ int tramp_run_kernel()
 	return ret;
 }
 
+/**
+ * Copy the data buffer from the device to the host.
+ * `buffer` must point to a pointer to a valid location in memory at least
+ * `size` bytes large.
+ *
+ * Returns 0 on success, non-zero otherwise.
+ */
 int tramp_copy_data(void **buffer, size_t size)
 {
 	cl_event event;
