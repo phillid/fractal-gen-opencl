@@ -30,7 +30,7 @@ Below is a simple demo image produced with the software. It is a simple
 mandelbrot fractal using only 75 iterations, at 768 square pixels. The
 image is a negative of that which comes straight from the software.
 
-![Demo mandelbrot image](./demo.png)
+![Demo mandelbrot image with few iterations](./demo-low-iterat.png)
 
 Such a small, low-detail image will not provide a case for using GPU rather
 than CPU, but once you start upping the image size and detail, a modern GPU
