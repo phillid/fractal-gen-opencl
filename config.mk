@@ -1,2 +1,2 @@
-CFLAGS += -I/usr/include/CL/ -DCL_SRC_DIR=\"./cl/\"
+CFLAGS += -I/usr/include/CL/ -DCL_SRC_DIR=\"$(PWD)/cl/\"
 LDFLAGS += -lOpenCL
