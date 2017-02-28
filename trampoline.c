@@ -360,10 +360,8 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
  * Run the OpenCL kernel on the device with the specified arguments and wait
  * for it to complete execution
  *
- * Returns CL_SUCCESS on success, otherwise an appropriate error value from
- * the CL library is returned.
+ * Returns 0 on success, otherwise 1
  *
- * FIXME the return values go against the grain of the rest of the file
  */
 int tramp_run_kernel()
 {
@@ -375,14 +373,14 @@ int tramp_run_kernel()
 
 	ret = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, workgroup_sizes, NULL, 0, NULL, &event);
 	if (ret != CL_SUCCESS) {
-		fprintf(stderr, "%d",ret);
-		return ret;
+		fprintf(stderr, "Failed to enqueue kernel run command: %s ", get_cl_error_string(ret));
+		return 1;
 	}
 
 	clReleaseEvent(event);
 	clFinish(command_queue);
 
-	return ret;
+	return 0;
 }
 
 /**
