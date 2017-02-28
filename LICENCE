@@ -1,5 +1,5 @@
 /*
- * fractal-gen-opencl - Generate iteration-based fractals in PNM format
+ * fractal-gen-opencl - Generate mandelbrot-based fractals in PNM format
  * Copyright (c) 2017 David Phillips <dbphillipsnz@gmail.com>
  * All rights reserved
  *
