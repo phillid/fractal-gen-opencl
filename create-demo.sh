@@ -16,7 +16,7 @@ create_demo() {
 
 hash pnminvert || exit
 hash convert || exit
-trap clean exit
+trap clean EXIT
 
 create_demo 768 75 demo-low-iterat.png
 create_demo 768 10000000 demo-high-iterat.png
