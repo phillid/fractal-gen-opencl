@@ -77,7 +77,7 @@ static const char *cl_error_strings[] = {
 const char *get_cl_error_string(cl_int error)
 {
 	error = -error;
-	if (error < 0 || error > sizeof(cl_error_strings) / sizeof(const char *))
+	if (error < 0 || error >= sizeof(cl_error_strings) / sizeof(const char *))
 		return "Error value out of bounds";
 
 	return cl_error_strings[error];
