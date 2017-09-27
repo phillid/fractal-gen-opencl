@@ -341,13 +341,13 @@ int tramp_set_kernel_args(unsigned int s, unsigned int it)
 		return 1;
 	}
 
-	ret = clSetKernelArg(kernel, 1, sizeof(unsigned int), &size);
+	ret = clSetKernelArg(kernel, 1, sizeof(cl_int), &size);
 	if (ret != CL_SUCCESS) {
 		fprintf(stderr, "Error on size argument: %s ", get_cl_error_string(ret));
 		return 1;
 	}
 
-	ret = clSetKernelArg(kernel, 2, sizeof(unsigned long), &iterations);
+	ret = clSetKernelArg(kernel, 2, sizeof(cl_int), &iterations);
 	if (ret != CL_SUCCESS) {
 		fprintf(stderr, "Error on iteration argument: %s ", get_cl_error_string(ret));
 		return 1;
